@@ -8,8 +8,8 @@ import lombok.Data;
 @AllArgsConstructor
 @Embeddable
 public class Address {
-    private String Country;
-    private String City;
-    private String County;
-    private String StreetAddress;
+    private String country;
+    private String city;
+    private String county;
+    private String streetAddress;
 }

@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class OrderDetailId implements Serializable {
-    private Orders Orders;
-    private Product Product;
-    private Location Location;
+    private Orders orders;
+    private Product product;
+    private Location shippedFrom;
 }

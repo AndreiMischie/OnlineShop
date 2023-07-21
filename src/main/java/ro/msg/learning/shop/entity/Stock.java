@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @IdClass(StockId.class)
 public class Stock {
     @ManyToOne @Id
-    private Product Product;
+    private Product product;
     @ManyToOne @Id
-    private Location Location;
-    private int Quantity;
+    private Location location;
+    private int quantity;
 }

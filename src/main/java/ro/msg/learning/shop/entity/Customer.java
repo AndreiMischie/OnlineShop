@@ -11,11 +11,11 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Data @NoArgsConstructor @AllArgsConstructor
 public class Customer extends BaseClass{
-    private String FirstName;
-    private String LastName;
-    private String Username;
-    private String Password;
-    private String EmailAddress;
-    @OneToMany(mappedBy = "Customer")
+    private String firstName;
+    private String lastName;
+    private String username;
+    private String password;
+    private String emailAddress;
+    @OneToMany(mappedBy = "customer")
     private Set<Orders> ordersList;
 }

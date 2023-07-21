@@ -11,10 +11,8 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ProductCategory extends BaseClass{
-    @Id
-    private int Id;
-    private String Name;
-    private String Description;
-    @OneToMany(mappedBy = "Category")
-    private Set<Product> Products;
+    private String name;
+    private String description;
+    @OneToMany(mappedBy = "category")
+    private Set<Product> products;
 }

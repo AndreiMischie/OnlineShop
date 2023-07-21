@@ -16,10 +16,10 @@ import java.util.Set;
 @Data @NoArgsConstructor @AllArgsConstructor
 public class Orders extends BaseClass{
     @ManyToOne
-    private Customer Customer;
-    private LocalDateTime CreatedAt;
+    private Customer customer;
+    private LocalDateTime createdAt;
     @Embedded
-    private Address Address;
-    @OneToMany(mappedBy = "Orders")
-    private Set<OrderDetail> OrdersDetails;
+    private Address address;
+    @OneToMany(mappedBy = "orders")
+    private Set<OrderDetail> ordersDetails;
 }
