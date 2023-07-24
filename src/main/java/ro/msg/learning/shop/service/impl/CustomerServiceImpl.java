@@ -1,6 +1,6 @@
 package ro.msg.learning.shop.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ro.msg.learning.shop.entity.Customer;
 import ro.msg.learning.shop.repository.CustomerRepository;
@@ -10,10 +10,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
 
     public Customer getCustomer(UUID id) {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);

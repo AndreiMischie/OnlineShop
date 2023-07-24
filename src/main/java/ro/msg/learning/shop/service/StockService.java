@@ -4,7 +4,7 @@ import ro.msg.learning.shop.entity.Stock;
 import ro.msg.learning.shop.entity.compositeId.StockId;
 
 public interface StockService {
-    public abstract Stock getStock(StockId id);
+    Stock getStock(StockId id);
 
-    public abstract Stock updateStock(Stock stock);
+    Stock updateStock(Stock stock);
 }

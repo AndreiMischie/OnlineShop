@@ -6,13 +6,13 @@ import java.util.Collection;
 import java.util.UUID;
 
 public interface ProductService {
-    public abstract Product createProduct(Product product);
+    Product createProduct(Product product);
 
-    public abstract Product updateProduct(Product product);
+    Product updateProduct(Product product);
 
-    public abstract void deleteProduct(UUID id);
+    void deleteProduct(UUID id);
 
-    public abstract Collection<Product> getProducts();
+    Collection<Product> getProducts();
 
-    public abstract Product getProduct(UUID id);
+    Product getProduct(UUID id);
 }

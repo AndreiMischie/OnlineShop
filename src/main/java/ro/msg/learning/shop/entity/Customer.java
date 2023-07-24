@@ -12,7 +12,6 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Customer extends BaseClass {
     private String firstName;
     private String lastName;

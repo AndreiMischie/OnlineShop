@@ -1,5 +1,6 @@
 package ro.msg.learning.shop.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/products")
+@RequiredArgsConstructor
 public class ProductController {
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<ProductDto> getProductData(@PathVariable("id") UUID id) {
@@ -38,22 +39,25 @@ public class ProductController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Object> deleteProduct(@PathVariable UUID id) {
+    public void deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
-        return new ResponseEntity<>("Product deleted!", HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Object> putProduct(@PathVariable("id") UUID id, @RequestBody ProductDto productDto) {
+    public ResponseEntity<ProductDto> putProduct(@PathVariable("id") UUID id, @RequestBody ProductDto productDto) {
         Product product = ProductMapper.INSTANCE.toProduct(productDto);
         productService.updateProduct(product);
-        return new ResponseEntity<>(product, HttpStatus.CREATED);
+        ProductCategory productCategory = product.getCategory();
+        ProductDto responseProductDto = ProductMapper.INSTANCE.toProductDto(product, productCategory);
+        return new ResponseEntity<>(responseProductDto, HttpStatus.CREATED);
     }
 
     @PostMapping
-    public ResponseEntity<Object> postProduct(@RequestBody ProductDto productDto) {
+    public ResponseEntity<ProductDto> postProduct(@RequestBody ProductDto productDto) {
         Product product = ProductMapper.INSTANCE.toProduct(productDto);
         productService.createProduct(product);
-        return new ResponseEntity<>(product, HttpStatus.CREATED);
+        ProductCategory productCategory = product.getCategory();
+        ProductDto responseProductDto = ProductMapper.INSTANCE.toProductDto(product, productCategory);
+        return new ResponseEntity<>(responseProductDto, HttpStatus.CREATED);
     }
 }

@@ -1,6 +1,6 @@
 package ro.msg.learning.shop.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,15 +15,16 @@ import ro.msg.learning.shop.service.OrdersService;
 
 @RestController
 @RequestMapping(value = "/orders")
+@RequiredArgsConstructor
 public class OrdersController {
-    @Autowired
-    private OrdersService ordersService;
+
+    private final OrdersService ordersService;
 
     @PostMapping
-    public ResponseEntity<Orders> postOrder(@RequestBody OrdersDto ordersDto){
-        Customer customer = ordersService.getCustomer(ordersDto.getCustomerId());
-        Orders order = OrdersMapper.INSTANCE.toOrders(ordersDto,customer);
-        Orders newOrder = ordersService.handleOrderCreation(order,ordersDto.getProducts(), customer);
-        return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+    public ResponseEntity<OrdersDto> postOrder(@RequestBody OrdersDto ordersDto) {
+        Orders order = OrdersMapper.INSTANCE.toOrders(ordersDto);
+        Orders newOrder = ordersService.handleOrderCreation(order, ordersDto.getProducts());
+        OrdersDto newOrdersDto = OrdersMapper.INSTANCE.toOrdersDto(newOrder, ordersDto.getProducts());
+        return new ResponseEntity<>(newOrdersDto, HttpStatus.CREATED);
     }
 }

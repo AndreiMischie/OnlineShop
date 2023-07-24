@@ -1,6 +1,6 @@
 package ro.msg.learning.shop.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ro.msg.learning.shop.entity.Stock;
 import ro.msg.learning.shop.entity.compositeId.StockId;
@@ -10,9 +10,10 @@ import ro.msg.learning.shop.service.StockService;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class StockServiceImpl implements StockService {
-    @Autowired
-    private StockRepository stockRepository;
+
+    private final StockRepository stockRepository;
 
     @Override
     public Stock getStock(StockId id) {

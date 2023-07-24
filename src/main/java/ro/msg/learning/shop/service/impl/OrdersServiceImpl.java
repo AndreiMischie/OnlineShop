@@ -1,6 +1,6 @@
 package ro.msg.learning.shop.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ro.msg.learning.shop.dto.ProductQuantityPairDto;
 import ro.msg.learning.shop.entity.*;
@@ -11,24 +11,20 @@ import ro.msg.learning.shop.service.*;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class OrdersServiceImpl implements OrdersService {
-    @Autowired
-    private OrdersRepository ordersRepository;
-    @Autowired
-    private LocationService locationService;
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private StockService stockService;
-    @Autowired
-    private OrderDetailService orderDetailService;
 
-    @Autowired
-    private CustomerService customerService;
+    private final OrdersRepository ordersRepository;
 
-    public Customer getCustomer(UUID id) {
-        return customerService.getCustomer(id);
-    }
+    private final LocationService locationService;
+
+    private final ProductService productService;
+
+    private final StockService stockService;
+
+    private final OrderDetailService orderDetailService;
+
+    private final CustomerService customerService;
 
     public Orders createOrders(Orders order) {
         ordersRepository.save(order);
@@ -84,17 +80,17 @@ public class OrdersServiceImpl implements OrdersService {
             Product product = getProductFromPair(productQuantityPairDto);
             int quantity = productQuantityPairDto.getQuantity();
             OrderDetail orderDetail = new OrderDetail(order, product, location, quantity);
-//            orderDetailService.createOrderDetail(orderDetail);
+            orderDetailService.createOrderDetail(orderDetail);
             orderDetails.add(orderDetail);
         }
         return orderDetails;
     }
 
-    public Orders handleOrderCreation(Orders order, List<ProductQuantityPairDto> productQuantityPairDtoList, Customer customer) {
-
+    public Orders handleOrderCreation(Orders order, List<ProductQuantityPairDto> productQuantityPairDtoList) {
+        Customer customer = customerService.getCustomer(order.getCustomer().getId());
         Location location = verifyStock(productQuantityPairDtoList);
         if (location != null) {
-            order.setCustomer(null);
+            order.setCustomer(customer);
             Orders newOrder = createOrders(order);
             Set<OrderDetail> orderDetails = createOrderDetails(newOrder, location, productQuantityPairDtoList);
             subtractAllStocks(location, productQuantityPairDtoList);
@@ -102,6 +98,7 @@ public class OrdersServiceImpl implements OrdersService {
             orders.add(order);
             customer.setOrdersList(orders);
             newOrder.setOrdersDetails(orderDetails);
+            newOrder.setCustomer(customer);
             return ordersRepository.save(newOrder);
         } else {
             throw new OrderNotCreatedException("your order was not created!");

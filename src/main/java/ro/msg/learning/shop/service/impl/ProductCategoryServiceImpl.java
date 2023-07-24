@@ -1,6 +1,6 @@
 package ro.msg.learning.shop.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ro.msg.learning.shop.entity.ProductCategory;
 import ro.msg.learning.shop.repository.ProductCategoryRepository;
@@ -10,9 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ProductCategoryServiceImpl implements ProductCategoryService {
-    @Autowired
-    private ProductCategoryRepository productCategoryRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
     @Override
     public ProductCategory getProductCategory(UUID Id) {
