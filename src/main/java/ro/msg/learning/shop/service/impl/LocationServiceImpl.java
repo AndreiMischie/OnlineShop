@@ -12,7 +12,8 @@ import java.util.Collection;
 public class LocationServiceImpl implements LocationService {
     @Autowired
     private LocationRepository locationRepository;
-    public Collection<Location> getLocations(){
+
+    public Collection<Location> getLocations() {
         return locationRepository.findAll();
     }
 }

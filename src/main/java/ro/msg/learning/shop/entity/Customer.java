@@ -1,16 +1,19 @@
 package ro.msg.learning.shop.entity;
 
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Entity
-@EqualsAndHashCode(callSuper = true)
-@Data @NoArgsConstructor @AllArgsConstructor
-public class Customer extends BaseClass{
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class Customer extends BaseClass {
     private String firstName;
     private String lastName;
     private String username;

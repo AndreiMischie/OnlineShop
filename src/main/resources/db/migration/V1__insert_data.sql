@@ -70,3 +70,42 @@ password,
 email_address)
 VALUES ('John','Doe','JohnDoe','password', 'john_doe@joe.com');
 
+INSERT INTO stock
+(product_id,
+location_id,
+quantity)
+VALUES ((select id from product where name ='fork' limit 1),  (select id from location where name ='Depozit1' limit 1), 15);
+
+INSERT INTO stock
+(product_id,
+location_id,
+quantity)
+VALUES ((select id from product where name ='spoon' limit 1),  (select id from location where name ='Depozit1' limit 1), 10);
+
+
+INSERT INTO stock
+(product_id,
+location_id,
+quantity)
+VALUES ((select id from product where name ='knife' limit 1),  (select id from location where name ='Depozit1' limit 1), 7);
+
+INSERT INTO stock
+(product_id,
+location_id,
+quantity)
+VALUES ((select id from product where name ='fork' limit 1),  (select id from location where name ='Depozit2' limit 1), 4);
+
+INSERT INTO stock
+(product_id,
+location_id,
+quantity)
+VALUES ((select id from product where name ='glass' limit 1),  (select id from location where name ='Depozit2' limit 1), 9);
+
+INSERT INTO stock
+(product_id,
+location_id,
+quantity)
+VALUES ((select id from product where name ='bowl' limit 1),  (select id from location where name ='Depozit2' limit 1), 6);
+
+
+

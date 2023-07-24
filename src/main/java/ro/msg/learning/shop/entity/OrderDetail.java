@@ -7,16 +7,21 @@ import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ro.msg.learning.shop.entity.compositeId.OrderDetailId;
 
 @Entity
-@Data @AllArgsConstructor @NoArgsConstructor
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @IdClass(OrderDetailId.class)
 public class OrderDetail {
-    @ManyToOne @Id
+    @ManyToOne
+    @Id
     private Orders orders;
-    @ManyToOne @Id
+    @ManyToOne
+    @Id
     private Product product;
-    @ManyToOne @Id
+    @ManyToOne
     private Location shippedFrom;
     private int quantity;
 }

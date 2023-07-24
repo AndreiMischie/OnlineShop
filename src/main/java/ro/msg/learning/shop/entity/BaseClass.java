@@ -10,8 +10,8 @@ import java.util.UUID;
 
 @MappedSuperclass
 @Data
-public class BaseClass {
+public abstract class BaseClass {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 }

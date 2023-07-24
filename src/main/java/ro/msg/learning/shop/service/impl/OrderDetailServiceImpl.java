@@ -10,7 +10,10 @@ import ro.msg.learning.shop.service.OrderDetailService;
 public class OrderDetailServiceImpl implements OrderDetailService {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
-    public void createOrderDetail(OrderDetail orderDetail){
+
+    public OrderDetail createOrderDetail(OrderDetail orderDetail) {
         orderDetailRepository.save(orderDetail);
+        return orderDetail;
     }
 }
+

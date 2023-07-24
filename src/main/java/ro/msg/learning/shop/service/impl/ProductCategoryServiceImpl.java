@@ -5,12 +5,12 @@ import org.springframework.stereotype.Service;
 import ro.msg.learning.shop.entity.ProductCategory;
 import ro.msg.learning.shop.repository.ProductCategoryRepository;
 import ro.msg.learning.shop.service.ProductCategoryService;
-import ro.msg.learning.shop.service.ProductService;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
-public class ProductCategoryServiceIpml implements ProductCategoryService {
+public class ProductCategoryServiceImpl implements ProductCategoryService {
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
 

@@ -5,5 +5,5 @@ import ro.msg.learning.shop.entity.Location;
 import java.util.Collection;
 
 public interface LocationService {
-      Collection<Location> getLocations();
+    Collection<Location> getLocations();
 }

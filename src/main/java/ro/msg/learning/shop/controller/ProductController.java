@@ -8,7 +8,6 @@ import ro.msg.learning.shop.dto.ProductDto;
 import ro.msg.learning.shop.entity.Product;
 import ro.msg.learning.shop.entity.ProductCategory;
 import ro.msg.learning.shop.mapper.ProductMapper;
-import ro.msg.learning.shop.service.ProductCategoryService;
 import ro.msg.learning.shop.service.ProductService;
 
 import java.util.ArrayList;
@@ -17,21 +16,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping(value = "/products")
 public class ProductController {
     @Autowired
     private ProductService productService;
-    @Autowired
-    private ProductCategoryService productCategoryService;
 
-    @GetMapping(value = "/products/{id}")
-    @ResponseBody
+    @GetMapping(value = "/{id}")
     public ResponseEntity<ProductDto> getProductData(@PathVariable("id") UUID id) {
         Product product = productService.getProduct(id);
         ProductCategory productCategory = product.getCategory();
         return new ResponseEntity<>(ProductMapper.INSTANCE.toProductDto(product, productCategory), HttpStatus.OK);
     }
 
-    @GetMapping("/products")
+    @GetMapping
     public ResponseEntity<Collection<ProductDto>> getProducts() {
         Collection<Product> products = productService.getProducts();
         Collection<ProductDto> productDtos = products.stream()
@@ -39,23 +36,24 @@ public class ProductController {
                 .collect(Collectors.toCollection(ArrayList::new));
         return new ResponseEntity<>(productDtos, HttpStatus.OK);
     }
-    @DeleteMapping(value = "/products/{id}")
+
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Object> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return new ResponseEntity<>("Product deleted!", HttpStatus.OK);
     }
 
-    @PutMapping(value = "/products/{id}")
-    public ResponseEntity<Object> putProduct(@PathVariable("id") UUID id,@RequestBody ProductDto productDto) {
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<Object> putProduct(@PathVariable("id") UUID id, @RequestBody ProductDto productDto) {
         Product product = ProductMapper.INSTANCE.toProduct(productDto);
         productService.updateProduct(product);
-        return new ResponseEntity<>("Product updated!", HttpStatus.OK);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
-    @PostMapping("/products")
-    public ResponseEntity<Object> postProduct( @RequestBody ProductDto productDto) {
+    @PostMapping
+    public ResponseEntity<Object> postProduct(@RequestBody ProductDto productDto) {
         Product product = ProductMapper.INSTANCE.toProduct(productDto);
         productService.createProduct(product);
-        return new ResponseEntity<>("Product created!", HttpStatus.OK);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 }
