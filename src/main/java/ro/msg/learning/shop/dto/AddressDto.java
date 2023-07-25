@@ -1,6 +1,5 @@
-package ro.msg.learning.shop.entity;
+package ro.msg.learning.shop.dto;
 
-import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Embeddable
-public class Address {
+public class AddressDto {
     private String country;
     private String city;
     private String county;
