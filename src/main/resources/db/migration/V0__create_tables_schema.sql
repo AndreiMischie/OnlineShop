@@ -2,7 +2,7 @@ set search_path to shop;
 
 CREATE EXTENSION "uuid-ossp";
 
-create table customer (
+CREATE TABLE customer (
 id uuid not null default uuid_generate_v4(),
 email_address varchar(255),
 first_name varchar(255),

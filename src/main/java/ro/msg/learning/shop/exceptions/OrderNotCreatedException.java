@@ -1,4 +1,4 @@
-package ro.msg.learning.shop.service.impl;
+package ro.msg.learning.shop.exceptions;
 
 import lombok.NoArgsConstructor;
 
