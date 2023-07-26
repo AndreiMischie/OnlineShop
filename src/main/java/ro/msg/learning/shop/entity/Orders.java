@@ -1,25 +1,26 @@
 package ro.msg.learning.shop.entity;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@EqualsAndHashCode(callSuper = true)
-@Data @NoArgsConstructor @AllArgsConstructor
-public class Orders extends BaseClass{
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Orders extends BaseClass {
     @ManyToOne
-    private Customer Customer;
-    private LocalDateTime CreatedAt;
+    @JsonBackReference
+    private Customer customer;
+    private LocalDateTime createdAt;
     @Embedded
-    private Address Address;
-    @OneToMany(mappedBy = "Orders")
-    private Set<OrderDetail> OrdersDetails;
+    private Address address;
+    @OneToMany(mappedBy = "orders")
+    @JsonManagedReference
+    private Set<OrderDetail> ordersDetails;
 }

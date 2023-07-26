@@ -1,26 +1,28 @@
 package ro.msg.learning.shop.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Entity
-@EqualsAndHashCode(callSuper = true)
-@Data @NoArgsConstructor @AllArgsConstructor
-public class Product extends BaseClass{
-    private String Name;
-    private String Description;
-    private float Price;
-    private double Weight;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Product extends BaseClass {
+    private String name;
+    private String description;
+    private float price;
+    private double weight;
     @ManyToOne
-    private ProductCategory Category;
-    private String ImageURL;
-    @OneToMany(mappedBy = "Product")
-    private Set<Stock> Stocks;
-    @OneToMany(mappedBy = "Product")
-    private Set<Stock> OrdersDetails;
+    private ProductCategory category;
+    private String imageURL;
+    @OneToMany(mappedBy = "product")
+    private Set<Stock> stocks;
+    @OneToMany(mappedBy = "product")
+    private Set<OrderDetail> ordersDetails;
 }
