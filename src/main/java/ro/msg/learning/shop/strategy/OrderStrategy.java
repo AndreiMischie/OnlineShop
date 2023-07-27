@@ -1,11 +1,11 @@
 package ro.msg.learning.shop.strategy;
 
-import ro.msg.learning.shop.dto.ProductQuantityPairDto;
-import ro.msg.learning.shop.entity.Customer;
+import ro.msg.learning.shop.util.OrderDetailsUtil;
 import ro.msg.learning.shop.entity.Orders;
+import ro.msg.learning.shop.util.ProductQuantityPairUtil;
 
-import java.util.List;
+import java.util.Set;
 
 public interface OrderStrategy {
-    Orders singleLocationStrategy(Orders order, List<ProductQuantityPairDto> productQuantityPairDtoList, Customer customer);
+    Set<OrderDetailsUtil> handleOrderCreation(Orders order, Set<ProductQuantityPairUtil> productQuantityPairUtilList);
 }

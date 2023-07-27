@@ -4,10 +4,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import ro.msg.learning.shop.dto.OrdersDto;
-import ro.msg.learning.shop.dto.ProductQuantityPairDto;
 import ro.msg.learning.shop.entity.Orders;
+import ro.msg.learning.shop.util.ProductQuantityPairUtil;
 
-import java.util.List;
+import java.util.Set;
 
 
 @Mapper
@@ -20,6 +20,6 @@ public interface OrdersMapper {
 
 
     @Mapping(source = "order.customer.id", target = "customerId")
-    OrdersDto toOrdersDto(Orders order, List<ProductQuantityPairDto> products);
+    OrdersDto toOrdersDto(Orders order, Set<ProductQuantityPairUtil> products);
 }
 

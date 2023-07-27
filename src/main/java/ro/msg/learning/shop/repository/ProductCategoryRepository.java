@@ -6,4 +6,5 @@ import ro.msg.learning.shop.entity.ProductCategory;
 import java.util.UUID;
 
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, UUID> {
+
 }

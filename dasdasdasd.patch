@@ -1,0 +1,437 @@
+Subject: [PATCH] dasdasdasd
+---
+Index: src/main/java/ro/msg/learning/shop/service/impl/OrdersServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/ro/msg/learning/shop/service/impl/OrdersServiceImpl.java b/src/main/java/ro/msg/learning/shop/service/impl/OrdersServiceImpl.java
+--- a/src/main/java/ro/msg/learning/shop/service/impl/OrdersServiceImpl.java	(revision 90d6d9773206660ccd49cff2a027e72bb2374922)
++++ b/src/main/java/ro/msg/learning/shop/service/impl/OrdersServiceImpl.java	(date 1690273031730)
+@@ -4,104 +4,25 @@
+ import org.springframework.stereotype.Service;
+ import ro.msg.learning.shop.dto.ProductQuantityPairDto;
+ import ro.msg.learning.shop.entity.*;
+-import ro.msg.learning.shop.entity.compositeId.StockId;
+ import ro.msg.learning.shop.repository.OrdersRepository;
+ import ro.msg.learning.shop.service.*;
++import ro.msg.learning.shop.strategy.impl.SingleLocationStrategy;
+ 
+ import java.util.*;
+ 
+ @Service
+ @RequiredArgsConstructor
+ public class OrdersServiceImpl implements OrdersService {
++    private final SingleLocationStrategy singleLocationStrategy;
+ 
+     private final OrdersRepository ordersRepository;
+ 
+-    private final LocationService locationService;
+-
+-    private final ProductService productService;
+-
+-    private final StockService stockService;
+-
+-    private final OrderDetailService orderDetailService;
+-
+-    private final CustomerService customerService;
+-
+     public Orders createOrders(Orders order) {
+         ordersRepository.save(order);
+         return order;
+     }
+ 
+-    public boolean isProductOnLocation(Location location, Product product, int quantity) {
+-        StockId id = new StockId(product, location);
+-        Stock stock = stockService.getStock(id);
+-        if (stock != null) {
+-            return stock.getQuantity() >= quantity;
+-        }
+-        return false;
+-    }
+-
+-    public Product getProductFromPair(ProductQuantityPairDto pair) {
+-        UUID productId = pair.getProductId();
+-        return productService.getProduct(productId);
+-    }
+-
+-    public Stock getStock(Product product, Location location) {
+-        StockId id = new StockId(product, location);
+-        return stockService.getStock(id);
+-    }
+-
+-    public Location verifyStock(List<ProductQuantityPairDto> productQuantityPairDtoList) {
+-        Collection<Location> locationList = locationService.getLocations();
+-        for (ProductQuantityPairDto productQuantityPairDto : productQuantityPairDtoList) {
+-            Product product = getProductFromPair(productQuantityPairDto);
+-            locationList.removeIf(location -> !isProductOnLocation(location, product, productQuantityPairDto.getQuantity()));
+-        }
+-        Optional<Location> optionalLocation = locationList.stream().findFirst();
+-        return optionalLocation.orElse(null);
+-    }
+-
+-    public void subtractStock(Location location, ProductQuantityPairDto productQuantityPairDto) {
+-        Product product = getProductFromPair(productQuantityPairDto);
+-        Stock stock = getStock(product, location);
+-        int quantity = stock.getQuantity() - productQuantityPairDto.getQuantity();
+-        Stock updatedStock = new Stock(product, location, quantity);
+-        stockService.updateStock(updatedStock);
+-    }
+-
+-    public void subtractAllStocks(Location location, List<ProductQuantityPairDto> productQuantityPairDtoList) {
+-        for (ProductQuantityPairDto productQuantityPairDto : productQuantityPairDtoList) {
+-            subtractStock(location, productQuantityPairDto);
+-        }
+-    }
+-
+-    public Set<OrderDetail> createOrderDetails(Orders order, Location location, List<ProductQuantityPairDto> productQuantityPairDtoList) {
+-        Set<OrderDetail> orderDetails = new HashSet<>();
+-        for (ProductQuantityPairDto productQuantityPairDto : productQuantityPairDtoList) {
+-            Product product = getProductFromPair(productQuantityPairDto);
+-            int quantity = productQuantityPairDto.getQuantity();
+-            OrderDetail orderDetail = new OrderDetail(order, product, location, quantity);
+-            orderDetailService.createOrderDetail(orderDetail);
+-            orderDetails.add(orderDetail);
+-        }
+-        return orderDetails;
+-    }
+-
+     public Orders handleOrderCreation(Orders order, List<ProductQuantityPairDto> productQuantityPairDtoList) {
+-        Customer customer = customerService.getCustomer(order.getCustomer().getId());
+-        Location location = verifyStock(productQuantityPairDtoList);
+-        if (location != null) {
+-            order.setCustomer(customer);
+-            Orders newOrder = createOrders(order);
+-            Set<OrderDetail> orderDetails = createOrderDetails(newOrder, location, productQuantityPairDtoList);
+-            subtractAllStocks(location, productQuantityPairDtoList);
+-            Set<Orders> orders = customer.getOrdersList();
+-            orders.add(order);
+-            customer.setOrdersList(orders);
+-            newOrder.setOrdersDetails(orderDetails);
+-            newOrder.setCustomer(customer);
+-            return ordersRepository.save(newOrder);
+-        } else {
+-            throw new OrderNotCreatedException("your order was not created!");
+-        }
++        return singleLocationStrategy.handleOrderCreation(order, productQuantityPairDtoList);
+     }
+ }
+\ No newline at end of file
+Index: src/main/java/ro/msg/learning/shop/controller/OrdersController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/ro/msg/learning/shop/controller/OrdersController.java b/src/main/java/ro/msg/learning/shop/controller/OrdersController.java
+--- a/src/main/java/ro/msg/learning/shop/controller/OrdersController.java	(revision 90d6d9773206660ccd49cff2a027e72bb2374922)
++++ b/src/main/java/ro/msg/learning/shop/controller/OrdersController.java	(date 1690273031738)
+@@ -8,7 +8,6 @@
+ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RestController;
+ import ro.msg.learning.shop.dto.OrdersDto;
+-import ro.msg.learning.shop.entity.Customer;
+ import ro.msg.learning.shop.entity.Orders;
+ import ro.msg.learning.shop.mapper.OrdersMapper;
+ import ro.msg.learning.shop.service.OrdersService;
+Index: src/main/java/ro/msg/learning/shop/dto/OrderDetailsDto.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/ro/msg/learning/shop/dto/OrderDetailsDto.java b/src/main/java/ro/msg/learning/shop/dto/OrderDetailsDto.java
+new file mode 100644
+--- /dev/null	(date 1690273031685)
++++ b/src/main/java/ro/msg/learning/shop/dto/OrderDetailsDto.java	(date 1690273031685)
+@@ -0,0 +1,14 @@
++package ro.msg.learning.shop.dto;
++
++import lombok.AllArgsConstructor;
++import lombok.Data;
++import ro.msg.learning.shop.entity.Location;
++import ro.msg.learning.shop.entity.Product;
++
++@Data
++@AllArgsConstructor
++public class OrderDetailsDto {
++    private Location location;
++    private Product product;
++    private int quantity;
++}
+Index: src/main/java/ro/msg/learning/shop/strategy/impl/SingleLocationStrategy.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/ro/msg/learning/shop/strategy/impl/SingleLocationStrategy.java b/src/main/java/ro/msg/learning/shop/strategy/impl/SingleLocationStrategy.java
+--- a/src/main/java/ro/msg/learning/shop/strategy/impl/SingleLocationStrategy.java	(revision 90d6d9773206660ccd49cff2a027e72bb2374922)
++++ b/src/main/java/ro/msg/learning/shop/strategy/impl/SingleLocationStrategy.java	(date 1690273357653)
+@@ -1,4 +1,109 @@
+ package ro.msg.learning.shop.strategy.impl;
+ 
+-public class SingleLocationStrategy {
++import lombok.RequiredArgsConstructor;
++import org.springframework.stereotype.Component;
++import ro.msg.learning.shop.dto.ProductQuantityPairDto;
++import ro.msg.learning.shop.entity.*;
++import ro.msg.learning.shop.entity.compositeId.StockId;
++import ro.msg.learning.shop.mapper.OrderDetailsMapper;
++import ro.msg.learning.shop.repository.OrdersRepository;
++import ro.msg.learning.shop.service.*;
++import ro.msg.learning.shop.exceptions.OrderNotCreatedException;
++import ro.msg.learning.shop.dto.OrderDetailsDto;
++import ro.msg.learning.shop.strategy.OrderStrategy;
++
++import java.util.*;
++
++@RequiredArgsConstructor
++@Component
++public class SingleLocationStrategy implements OrderStrategy {
++
++    private final OrdersRepository ordersRepository;
++
++    private final LocationService locationService;
++
++    private final ProductService productService;
++
++    private final StockService stockService;
++
++    private final OrderDetailService orderDetailService;
++
++    private final CustomerService customerService;
++
++    public boolean isProductOnLocation(Location location, Product product, int quantity) {
++        StockId id = new StockId(product, location);
++        Stock stock = stockService.getStock(id);
++        if (stock != null) {
++            return stock.getQuantity() >= quantity;
++        }
++        return false;
++    }
++
++    public Product getProductFromPair(ProductQuantityPairDto pair) {
++        UUID productId = pair.getProductId();
++        return productService.getProduct(productId);
++    }
++
++    public Stock getStock(Product product, Location location) {
++        StockId id = new StockId(product, location);
++        return stockService.getStock(id);
++    }
++
++    public Location verifyStock(List<ProductQuantityPairDto> productQuantityPairDtoList) {
++        Collection<Location> locationList = locationService.getLocations();
++        for (ProductQuantityPairDto productQuantityPairDto : productQuantityPairDtoList) {
++            Product product = getProductFromPair(productQuantityPairDto);
++            locationList.removeIf(location -> !isProductOnLocation(location, product, productQuantityPairDto.getQuantity()));
++        }
++        Optional<Location> optionalLocation = locationList.stream().findFirst();
++        return optionalLocation.orElse(null);
++    }
++
++    public void subtractStock(Location location, ProductQuantityPairDto productQuantityPairDto) {
++        Product product = getProductFromPair(productQuantityPairDto);
++        Stock stock = getStock(product, location);
++        int quantity = stock.getQuantity() - productQuantityPairDto.getQuantity();
++        Stock updatedStock = new Stock(product, location, quantity);
++        stockService.updateStock(updatedStock);
++    }
++
++    public void subtractAllStocks(Location location, List<ProductQuantityPairDto> productQuantityPairDtoList) {
++        for (ProductQuantityPairDto productQuantityPairDto : productQuantityPairDtoList) {
++            subtractStock(location, productQuantityPairDto);
++        }
++    }
++
++    public Set<OrderDetail> createOrderDetails(Orders order, Location location, List<ProductQuantityPairDto> productQuantityPairDtoList) {
++        Set<OrderDetail> orderDetails = new HashSet<>();
++        for (ProductQuantityPairDto productQuantityPairDto : productQuantityPairDtoList) {
++            Product product = getProductFromPair(productQuantityPairDto);
++            int quantity = productQuantityPairDto.getQuantity();
++            OrderDetail orderDetail = new OrderDetail(order, product, location, quantity);
++            orderDetailService.createOrderDetail(orderDetail);
++            orderDetails.add(orderDetail);
++        }
++        return orderDetails;
++    }
++
++    @Override
++    public Orders handleOrderCreation(Orders order, List<ProductQuantityPairDto> productQuantityPairDtoList) {
++        Customer customer = customerService.getCustomer(order.getCustomer().getId());
++        Location location = verifyStock(productQuantityPairDtoList);
++        Set<OrderDetailsDto> orderDetailsDtoSet = new HashSet<>();
++        if (location != null) {
++            order.setCustomer(customer);
++            Orders newOrder = ordersRepository.save(order);
++            Set<OrderDetail> orderDetails = createOrderDetails(newOrder, location, productQuantityPairDtoList);
++            newOrder.setOrdersDetails(orderDetails);
++            subtractAllStocks(location, productQuantityPairDtoList);
++            Set<Orders> orders = customer.getOrdersList();
++            orders.add(order);
++            customer.setOrdersList(orders);
++            newOrder.setCustomer(customer);
++            orderDetailsDtoSet.add(OrderDetailsMapper.INSTANCE.toOrderDetailsDto(orderDetails));
++            return ordersRepository.save(newOrder);
++        } else {
++            throw new OrderNotCreatedException("Your order was not created!");
++        }
++    }
+ }
+Index: src/main/java/ro/msg/learning/shop/strategy/OrderStrategy.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/ro/msg/learning/shop/strategy/OrderStrategy.java b/src/main/java/ro/msg/learning/shop/strategy/OrderStrategy.java
+--- a/src/main/java/ro/msg/learning/shop/strategy/OrderStrategy.java	(revision 90d6d9773206660ccd49cff2a027e72bb2374922)
++++ b/src/main/java/ro/msg/learning/shop/strategy/OrderStrategy.java	(date 1690273031671)
+@@ -3,9 +3,10 @@
+ import ro.msg.learning.shop.dto.ProductQuantityPairDto;
+ import ro.msg.learning.shop.entity.Customer;
+ import ro.msg.learning.shop.entity.Orders;
++import ro.msg.learning.shop.strategy.impl.SingleLocationStrategy;
+ 
+ import java.util.List;
+ 
+ public interface OrderStrategy {
+-    Orders singleLocationStrategy(Orders order, List<ProductQuantityPairDto> productQuantityPairDtoList, Customer customer);
++    Orders handleOrderCreation(Orders order, List<ProductQuantityPairDto> productQuantityPairDtoList);
+ }
+Index: src/main/java/ro/msg/learning/shop/strategy/impl/MostAbundantLocationStrategy.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/ro/msg/learning/shop/strategy/impl/MostAbundantLocationStrategy.java b/src/main/java/ro/msg/learning/shop/strategy/impl/MostAbundantLocationStrategy.java
+new file mode 100644
+--- /dev/null	(date 1690271964716)
++++ b/src/main/java/ro/msg/learning/shop/strategy/impl/MostAbundantLocationStrategy.java	(date 1690271964716)
+@@ -0,0 +1,11 @@
++package ro.msg.learning.shop.strategy.impl;
++
++import lombok.RequiredArgsConstructor;
++import org.springframework.stereotype.Component;
++import ro.msg.learning.shop.strategy.OrderStrategy;
++
++@RequiredArgsConstructor
++@Component
++public class MostAbundantLocationStrategy implements OrderStrategy {
++
++}
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 90d6d9773206660ccd49cff2a027e72bb2374922)
++++ b/pom.xml	(date 1690272832853)
+@@ -15,9 +15,6 @@
+ 	<description>Online shop</description>
+ 	<properties>
+ 		<java.version>20</java.version>
+-		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+-		<org.projectlombok.version>1.18.20</org.projectlombok.version>
+-		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+ 	</properties>
+ 	<dependencies>
+ 		<dependency>
+@@ -27,17 +24,12 @@
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
+-		</dependency>
+-		<dependency>
+-			<groupId>org.junit.jupiter</groupId>
+-			<artifactId>junit-jupiter-api</artifactId>
+-			<version>5.10.0</version>
+-			<scope>test</scope>
+ 		</dependency>
+ 		<dependency>
+ 			<groupId>org.flywaydb</groupId>
+ 			<artifactId>flyway-core</artifactId>
+ 		</dependency>
++
+ 		<dependency>
+ 			<groupId>org.postgresql</groupId>
+ 			<artifactId>postgresql</artifactId>
+@@ -52,13 +44,9 @@
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-test</artifactId>
+ 			<scope>test</scope>
+-		</dependency>
+-		<dependency>
+-			<groupId>org.mapstruct</groupId>
+-			<artifactId>mapstruct</artifactId>
+-			<version>${org.mapstruct.version}</version>
+ 		</dependency>
+ 	</dependencies>
++
+ 	<build>
+ 		<plugins>
+ 			<plugin>
+@@ -71,34 +59,9 @@
+ 							<artifactId>lombok</artifactId>
+ 						</exclude>
+ 					</excludes>
+-				</configuration>
+-			</plugin>
+-			<plugin>
+-				<groupId>org.apache.maven.plugins</groupId>
+-				<artifactId>maven-compiler-plugin</artifactId>
+-				<version>3.5.1</version>
+-				<configuration>
+-					<source>1.8</source>
+-					<target>1.8</target>
+-					<annotationProcessorPaths>
+-						<path>
+-							<groupId>org.mapstruct</groupId>
+-							<artifactId>mapstruct-processor</artifactId>
+-							<version>${org.mapstruct.version}</version>
+-						</path>
+-						<path>
+-							<groupId>org.projectlombok</groupId>
+-							<artifactId>lombok</artifactId>
+-							<version>${org.projectlombok.version}</version>
+-						</path>
+-						<path>
+-							<groupId>org.projectlombok</groupId>
+-							<artifactId>lombok-mapstruct-binding</artifactId>
+-							<version>${lombok-mapstruct-binding.version}</version>
+-						</path>
+-					</annotationProcessorPaths>
+ 				</configuration>
+ 			</plugin>
+ 		</plugins>
+ 	</build>
+-</project>
+\ No newline at end of file
++
++</project>
+Index: src/main/java/ro/msg/learning/shop/mapper/OrderDetailsMapper.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/ro/msg/learning/shop/mapper/OrderDetailsMapper.java b/src/main/java/ro/msg/learning/shop/mapper/OrderDetailsMapper.java
+new file mode 100644
+--- /dev/null	(date 1690273158595)
++++ b/src/main/java/ro/msg/learning/shop/mapper/OrderDetailsMapper.java	(date 1690273158595)
+@@ -0,0 +1,18 @@
++package ro.msg.learning.shop.mapper;
++
++import org.mapstruct.Mapper;
++import org.mapstruct.factory.Mappers;
++import ro.msg.learning.shop.dto.OrderDetailsDto;
++import ro.msg.learning.shop.dto.OrdersDto;
++import ro.msg.learning.shop.dto.ProductQuantityPairDto;
++import ro.msg.learning.shop.entity.OrderDetail;
++import ro.msg.learning.shop.entity.Orders;
++import ro.msg.learning.shop.entity.compositeId.OrderDetailId;
++
++import java.util.List;
++
++@Mapper
++public interface OrderDetailsMapper {
++    OrderDetailsMapper INSTANCE = Mappers.getMapper(OrderDetailsMapper.class);
++    OrderDetailsDto toOrderDetailsDto(OrderDetail orderDetail);
++}
